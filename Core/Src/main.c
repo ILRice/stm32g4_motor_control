@@ -103,7 +103,10 @@ int main(void)
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
-  BLDC_SetCurrentTargetMa(800); /* 设置目标电流。 */
+  BLDC_SetCurrentScalePermille(1000U, 1000U, 1000U); /* 三相先使用标称电流增益，实测后分别校准。 */
+  BLDC_SetOvercurrentLimitMa(1200); /* 长时间温升测试使用一点二安软件过流保护。 */
+  BLDC_SetCurrentTargetMa(500); /* 低温升运行测试将目标电流设置为五百毫安。 */
+  BLDC_SetPhaseAdvanceMaxPermille(100U); /* 纯积分闭环在高速区最多提前百分之十的积分阈值。 */
   BLDC_test(); /* 运行 VESC 风格的非同步整流无感 Integrate 控制。 */
 
   /* USER CODE END 2 */

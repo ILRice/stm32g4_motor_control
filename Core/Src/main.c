@@ -105,9 +105,18 @@ int main(void)
 
   BLDC_SetCurrentScalePermille(1000U, 1000U, 1000U); /* 三相先使用标称电流增益，实测后分别校准。 */
   BLDC_SetOvercurrentLimitMa(1200); /* 长时间温升测试使用一点二安软件过流保护。 */
-  BLDC_SetCurrentTargetMa(500); /* 低温升运行测试将目标电流设置为五百毫安。 */
+  BLDC_SetInputCurrentLimitMa(600U); /* 按 VESC BLDC 估算方式限制母线输入电流为六百毫安。 */
+  BLDC_SetInputPowerLimitMw(15000U); /* 将母线输入功率限制为十五瓦。 */
+  BLDC_SetMotorCurrentLimitMa(1100); /* 将统一电机电流上限设置为一点一安。 */
+  BLDC_SetDutyLimitsPermille(84U, 500U); /* 将电流环 PWM 计数范围限制为约百分之八点四到百分之五十。 */
+  BLDC_SetSpeedLimitsErpm(1500U, 6500U); /* 将当前实机验证速度范围限制为一千五百到六千五百电角转每分钟。 */
+  BLDC_SetSpeedPidGains(50U, 1000U, 0U, 200U); /* 设置速度 PID 为原速度 PI 等效增益并暂时关闭微分项。 */
   BLDC_SetPhaseAdvanceMaxPermille(100U); /* 纯积分闭环在高速区最多提前百分之十的积分阈值。 */
-  BLDC_test(); /* 运行 VESC 风格的非同步整流无感 Integrate 控制。 */
+  BLDC_test(); /* 初始化 VESC 风格非同步整流无感 Integrate 控制。 */
+  BLDC_SetCurrentRampMaPerSecond(500U, 1000U); /* 运行命令每秒上升零点五安、下降一安。 */
+  BLDC_SetSignedSpeedErpm(6200); /* 默认正转六千二百电角转每分钟，改为负数可请求自动安全换向。 */
+  /* 电流模式测试时只把上一行替换为 BLDC_SetRunCurrentMa(400)，该命令会持续产生四百毫安转矩。 */
+  /* 占空比模式测试时只把上一行替换为 BLDC_SetDutyPermille(320U)，不要同时调用两个模式。 */
 
   /* USER CODE END 2 */
 
@@ -118,6 +127,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    BLDC_Process(); /* 持续执行母线保护、软停机和失步自动恢复管理。 */
   }
   /* USER CODE END 3 */
 }
